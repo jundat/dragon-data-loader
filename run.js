@@ -4,10 +4,11 @@ var http = require("http");
 var fs = require("fs");
 var cheerio = require("cheerio");
 
-var MIN = 1;
+var MIN = 5;
 var MAX = 100;
 var ID = MIN;
 var ARRAY = [];
+var DEBUG = false;
 
 
 
@@ -15,21 +16,21 @@ download (ID, loaded);
 
 function completed () {
 	console.log("completed");
-	//console.log(ARRAY);
+	log(ARRAY);
 }
 
 function loaded (data) {
-	//console.log("--------------------------------- start");
+	log("----------------" + ID + "----------------- start");
 	
 	var obj = parseData (data);
 	//ARRAY.push(obj);
 
 	writeToFile(ID, obj);
+	console.log(ID);
 	
-	//console.log("---------------------------- end");
+	log("---------------------------- end");
 	
 	if (ID < MAX) {
-		console.log(ID);
 		ID++;
 		setTimeout(function () {
 			download(ID, loaded);
@@ -44,7 +45,7 @@ function writeToFile (id, obj) {
 
 	fs.open("result.csv", 'a', 0666, function(err, file) {
 		fs.write(file, str, null, undefined, function (err, written) {
-			//console.log('bytes written: ' + written);
+			log('. . . Bytes written: ' + written);
 		});
 	});
 }
@@ -86,6 +87,12 @@ function parseObjToCSV (id, obj) {
 	return str;
 }
 
+function log(str) {
+	if (DEBUG) {
+		console.log(str);	
+	};
+}
+
 function myParseInt (str) {
 	var strs = str.split(' ');
 
@@ -125,9 +132,9 @@ function parseData (data) {
 	obj.evolutionMaterial = "";
 	obj.ultimateEvo = "None";
 
-	obj.series = $(".titlebar1 > h2 > span").first().text();
+	obj.series = $(".titlebar1 > h2 > span").first().text().trim();
 	obj.series = obj.series.substr(0, obj.series.indexOf(" Series") );
-	//console.log("series: "+ obj.series );
+	log("series: "+ obj.series );
 
 	$('table .titlebar1 > h2').each(function(i, e){
 		var table = $(e).parents('table#tablestat');
@@ -135,33 +142,33 @@ function parseData (data) {
 			table.children().each(function(i, e) {
 				switch (i) {
 					case 2:
-						obj.name = $(e).children('.value-end').text();
-						//console.log("name: "+ obj.name );
+						obj.name = $(e).children('.value-end').text().trim();
+						log("name: "+ obj.name );
 					break;
 
 					case 3:
-						obj.jpname = $(e).children('.value-end').text();
-						//console.log("jpname: "+ obj.jpname );
+						obj.jpname = $(e).children('.value-end').text().trim();
+						log("jpname: "+ obj.jpname );
 					break;
 
 					case 4:
-						obj.type = $(e).children('.value-end').text();
-						//console.log("type: "+ obj.type );
+						obj.type = $(e).children('.value-end').text().trim();
+						log("type: "+ obj.type );
 					break;
 
 					case 5:
-						obj.attribute = $(e).children('.value-end').text();
-						//console.log("attribute: "+ obj.attribute );
+						obj.attribute = $(e).children('.value-end').text().trim();
+						log("attribute: "+ obj.attribute );
 					break;
 
 					case 6:
-						obj.rarity = parseInt( $(e).children('.value-end').text() );
-						//console.log("rarity: "+ obj.rarity );
+						obj.rarity = myParseInt($(e).children('.value-end').text());
+						log("rarity: "+ obj.rarity );
 					break;
 
 					case 7:
-						obj.cost = $(e).children('.value-end').text();
-						//console.log("cost: "+ obj.cost );
+						obj.cost = myParseInt($(e).children('.value-end').text().trim());
+						log("cost: "+ obj.cost );
 					break;
 				}
 			});
@@ -169,38 +176,38 @@ function parseData (data) {
 			table.children().each(function(i, e) {
 				switch (i) {
 					case 2:
-						obj.minLv = $( $(e).children('.value-end').get(0) ).text();
-						obj.maxLv = $( $(e).children('.value-end').get(1) ).text();
-						//console.log("minLv: "+ obj.minLv );
-						//console.log("maxLv: "+ obj.maxLv );
+						obj.minLv = $( $(e).children('.value-end').get(0) ).text().trim();
+						obj.maxLv = $( $(e).children('.value-end').get(1) ).text().trim();
+						log("minLv: "+ obj.minLv );
+						log("maxLv: "+ obj.maxLv );
 					break;
 
 					case 3:
-						obj.minHp = $( $(e).children('.value-end').get(0) ).text();
-						obj.maxHp = $( $(e).children('.value-end').get(1) ).text();
-						//console.log("minHp: "+ obj.minHp );
-						//console.log("maxHp: "+ obj.maxHp );
+						obj.minHp = $( $(e).children('.value-end').get(0) ).text().trim();
+						obj.maxHp = $( $(e).children('.value-end').get(1) ).text().trim();
+						log("minHp: "+ obj.minHp );
+						log("maxHp: "+ obj.maxHp );
 					break;
 					
 					case 4:
-						obj.minAtk = $( $(e).children('.value-end').get(0) ).text();
-						obj.maxAtk = $( $(e).children('.value-end').get(1) ).text();
-						//console.log("minAtk: "+ obj.minAtk );
-						//console.log("maxAtk: "+ obj.maxAtk );
+						obj.minAtk = $( $(e).children('.value-end').get(0) ).text().trim();
+						obj.maxAtk = $( $(e).children('.value-end').get(1) ).text().trim();
+						log("minAtk: "+ obj.minAtk );
+						log("maxAtk: "+ obj.maxAtk );
 					break;
 					
 					case 5:
-						obj.minRcv = $( $(e).children('.value-end').get(0) ).text();
-						obj.maxRcv = $( $(e).children('.value-end').get(1) ).text();
-						//console.log("minRcv: "+ obj.minRcv );
-						//console.log("maxRcv: "+ obj.maxRcv );
+						obj.minRcv = $( $(e).children('.value-end').get(0) ).text().trim();
+						obj.maxRcv = $( $(e).children('.value-end').get(1) ).text().trim();
+						log("minRcv: "+ obj.minRcv );
+						log("maxRcv: "+ obj.maxRcv );
 					break;
 					
 					case 6:
-						obj.minWeight = $( $(e).children('.value-end').get(0) ).text();
-						obj.maxWeight = $( $(e).children('.value-end').get(1) ).text();
-						//console.log("minWeight: "+ obj.minWeight );
-						//console.log("maxWeight: "+ obj.maxWeight );
+						obj.minWeight = $( $(e).children('.value-end').get(0) ).text().trim();
+						obj.maxWeight = $( $(e).children('.value-end').get(1) ).text().trim();
+						log("minWeight: "+ obj.minWeight );
+						log("maxWeight: "+ obj.maxWeight );
 					break;
 					
 				}
@@ -210,12 +217,12 @@ function parseData (data) {
 				switch (i) {
 					case 1: //~ Exp Curve/1000000
 						obj.expCurve = 0.000001 * myParseInt ( $(e).children('.title.nowrap').text().trim() );
-						//console.log("expCurve: "+ obj.expCurve );
+						log("expCurve: "+ obj.expCurve );
 					break;
 
 					case 2:
-						obj.expToMaxLevel = parseInt( $(e).children('.title.nowrap').text().trim() );
-						//console.log("expToMaxLevel: "+ obj.expToMaxLevel );
+						obj.expToMaxLevel = myParseInt ( $(e).children('.title.nowrap').text().trim() );
+						log("expToMaxLevel: "+ obj.expToMaxLevel );
 					break;
 				}
 			});
@@ -237,27 +244,27 @@ function parseData (data) {
 				switch (i) {
 					case 0:
 						obj.minSell = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("minSell: "+ obj.minSell );
+						log("minSell: "+ obj.minSell );
 					break;
 
 					case 1:
 						obj.maxSell = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("maxSell: "+ obj.maxSell );
+						log("maxSell: "+ obj.maxSell );
 					break;
 
 					case 2:
 						obj.minFodder = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("minFodder: "+ obj.minFodder );
+						log("minFodder: "+ obj.minFodder );
 					break;
 
 					case 3:
 						obj.maxFodder = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("maxFodder: "+ obj.maxFodder );
+						log("maxFodder: "+ obj.maxFodder );
 					break;
 
 					case 4:
 						obj.sameElem = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("sameElem: "+ obj.sameElem );
+						log("sameElem: "+ obj.sameElem );
 					break;
 				}
 			});
@@ -284,15 +291,15 @@ function parseData (data) {
 			};
 			obj.evolutionTarget = myParseInt ( $(evo.get(idtarget)).text().trim() );
 
-			//console.log ("from: "+ obj.evolutionFrom );
-			//console.log ("target: "+ obj.evolutionTarget );
+			log ("from: "+ obj.evolutionFrom );
+			log ("target: "+ obj.evolutionTarget );
 		}
 	});
 
 	
 	//avatar
 	obj.avatar = "http://www.puzzledragonx.com/en/" + $(".avatar > img").first().attr('src');
-	//console.log("avatar: "+ obj.avatar);
+	log("avatar: "+ obj.avatar);
 
 	return obj;
 }
