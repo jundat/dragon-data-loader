@@ -1,10 +1,11 @@
 
 
 var http = require("http");
+var fs = require("fs");
 var cheerio = require("cheerio");
 
 var MIN = 1;
-var MAX = 5;
+var MAX = 100;
 var ID = MIN;
 var ARRAY = [];
 
@@ -13,15 +14,17 @@ var ARRAY = [];
 download (ID, loaded);
 
 function completed () {
-	console.log("completed\n");
-	console.log(ARRAY);
+	console.log("completed");
+	//console.log(ARRAY);
 }
 
 function loaded (data) {
 	//console.log("--------------------------------- start");
 	
 	var obj = parseData (data);
-	ARRAY.push(obj);
+	//ARRAY.push(obj);
+
+	writeToFile(ID, obj);
 	
 	//console.log("---------------------------- end");
 	
@@ -34,6 +37,53 @@ function loaded (data) {
 	} else {
 		completed();
 	}
+}
+
+function writeToFile (id, obj) {
+	var str = parseObjToCSV(id, obj);
+
+	fs.open("result.csv", 'a', 0666, function(err, file) {
+		fs.write(file, str, null, undefined, function (err, written) {
+			//console.log('bytes written: ' + written);
+		});
+	});
+}
+
+function parseObjToCSV (id, obj) {
+	var str = "";
+
+	str += id + ","
+	+ obj.name + ","
+	+ obj.attribute + ","
+	+ obj.subAttribute + ","
+	+ obj.type + ","
+	+ obj.rarity + ","
+	+ obj.expToMaxLevel  + ","
+	+ obj.series  + ","
+	+ obj.cost  + ","
+	+ obj.minHp  + ","
+	+ obj.maxHp  + ","
+	+ obj.minAtk  + ","
+	+ obj.maxAtk  + ","
+	+ obj.minRcv  + ","
+	+ obj.maxRcv  + ","
+	+ obj.minWeight  + ","
+	+ obj.maxWeight  + ","
+	+ obj.minFodder  + ","
+	+ obj.maxFodder  + ","
+	+ obj.sameElem  + ","
+	+ obj.maxLv  + ","
+	+ obj.expCurve  + ","
+	+ obj.activeSkill  + ","
+	+ obj.leaderSkill  + ","
+	+ obj.evolutionFrom  + ","
+	+ obj.evolutionMaterial  + ","
+	+ obj.evolutionTarget  + ","
+	+ obj.ultimateEvo  + ","
+	+ obj.minSell  + ","
+	+ obj.maxSell + "\n";
+
+	return str;
 }
 
 function myParseInt (str) {
@@ -69,9 +119,11 @@ function parseData (data) {
 	var $ = cheerio.load(data);
 
 	var obj = {};
+	obj.subAttribute = "";
 	obj.activeSkill = "";
 	obj.leaderSkill = "";
 	obj.evolutionMaterial = "";
+	obj.ultimateEvo = "None";
 
 	obj.series = $(".titlebar1 > h2 > span").first().text();
 	obj.series = obj.series.substr(0, obj.series.indexOf(" Series") );
@@ -98,8 +150,8 @@ function parseData (data) {
 					break;
 
 					case 5:
-						obj.element = $(e).children('.value-end').text();
-						//console.log("element: "+ obj.element );
+						obj.attribute = $(e).children('.value-end').text();
+						//console.log("attribute: "+ obj.attribute );
 					break;
 
 					case 6:
@@ -184,23 +236,23 @@ function parseData (data) {
 			table.children().each(function(i, e) {
 				switch (i) {
 					case 0:
-						obj.sellBase = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("sellBase: "+ obj.sellBase );
+						obj.minSell = myParseInt( $(e).children('.value-end').text().trim() );
+						//console.log("minSell: "+ obj.minSell );
 					break;
 
 					case 1:
-						obj.sellMax = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("sellMax: "+ obj.sellMax );
+						obj.maxSell = myParseInt( $(e).children('.value-end').text().trim() );
+						//console.log("maxSell: "+ obj.maxSell );
 					break;
 
 					case 2:
-						obj.fodderBase = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("fodderBase: "+ obj.fodderBase );
+						obj.minFodder = myParseInt( $(e).children('.value-end').text().trim() );
+						//console.log("minFodder: "+ obj.minFodder );
 					break;
 
 					case 3:
-						obj.fodderMax = myParseInt( $(e).children('.value-end').text().trim() );
-						//console.log("fodderMax: "+ obj.fodderMax );
+						obj.maxFodder = myParseInt( $(e).children('.value-end').text().trim() );
+						//console.log("maxFodder: "+ obj.maxFodder );
 					break;
 
 					case 4:
