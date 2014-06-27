@@ -4,19 +4,27 @@ var http = require("http");
 var fs = require("fs");
 var cheerio = require("cheerio");
 
-var MIN = 5;
-var MAX = 100;
+var MIN = 121;
+var MAX = 125;
 var ID = MIN;
 var ARRAY = [];
 var DEBUG = false;
 
-
+var startTime = new Date();
+var endTime;
 
 download (ID, loaded);
 
 function completed () {
-	console.log("completed");
-	log(ARRAY);
+
+	endTime = new Date();
+	console.log("Completed !");
+
+	var dt = (endTime - startTime) / 1000;
+	console.log("Total time: " + dt + " s");
+	console.log("Total file: " + (MAX - MIN + 1));
+
+	//log(ARRAY);
 }
 
 function loaded (data) {
